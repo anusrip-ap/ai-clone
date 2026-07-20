@@ -1,10 +1,10 @@
 import streamlit as st
 from google import genai
 
-st.title("Gemini Chatbot")
+st.title("Kimi Chatbot")
 
 # Initialize Gemini Client using Streamlit secret
-client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+client = genai.Client(api_key=st.secrets["KIMI_API_KEY"])
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
