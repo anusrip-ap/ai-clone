@@ -1,7 +1,7 @@
 import streamlit as st
 from openai import OpenAI
 
-st.title("Kimi Chatbot (NVIDIA NIM)")
+st.title("Kimi Chatbot":")
 
 # Initialize OpenAI Client pointing to NVIDIA NIM Base URL
 client = OpenAI(
