@@ -1,10 +1,13 @@
 import streamlit as st
-from google import genai
+from openai import OpenAI
 
-st.title("Kimi Chatbot")
+st.title("Kimi Chatbot (NVIDIA NIM)")
 
-# Initialize Gemini Client using Streamlit secret
-client = genai.Client(api_key=st.secrets["KIMI_API_KEY"])
+# Initialize OpenAI Client pointing to NVIDIA NIM Base URL
+client = OpenAI(
+    base_url="https://integrate.api.nvidia.com/v1",
+    api_key=st.secrets["NVIDIA_API_KEY"],
+)
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
@@ -15,17 +18,28 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Process user input
-if prompt := st.chat_input("Ask Gemini something..."):
+if prompt := st.chat_input("Ask Kimi something..."):
+    # Append user prompt to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
     with st.chat_message("assistant"):
-        # UPDATED: Changed model to "gemini-2.0-flash"
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
-        )
-        st.markdown(response.text)
+        # Format the full message history for OpenAI chat completions
+        formatted_messages = [
+            {"role": m["role"], "content": m["content"]}
+            for m in st.session_state.messages
+        ]
 
-    st.session_state.messages.append({"role": "assistant", "content": response.text})
+        # Call the model via NVIDIA API
+        completion = client.chat.completions.create(
+            model="moonshotai/kimi-k2.6",  # Update to exact NVIDIA Kimi model ID if needed
+            messages=formatted_messages,
+            temperature=0.7,
+        )
+
+        response_text = completion.choices[0].message.content
+        st.markdown(response_text)
+
+    # Append assistant response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": response_text})
